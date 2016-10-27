@@ -216,7 +216,10 @@ fn main() {
     starplot.add_dim(0.2, [0.0, 1.0], "first");
     starplot.add_dim(0.8, [0.0, 1.0], "second");
     starplot.add_dim(50.0, [0.0, 200.0], "third");
-    starplot.add_dim(0.7, [0.0, 1.0], "forth");
+    starplot.add_dim(0.4, [0.0, 1.0], "forth");
+    starplot.add_dim(0.7, [0.0, 1.0], "fifth");
+    starplot.add_dim(0.6, [0.0, 1.0], "sixth");
+    starplot.add_dim(0.5, [0.0, 1.0], "seventh");
 
     // Add Starplot to the Application
     let mut app = App::new(GlGraphics::new(opengl));
