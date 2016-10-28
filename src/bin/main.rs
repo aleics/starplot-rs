@@ -13,8 +13,8 @@ use piston_window::{PistonWindow};
 use opengl_graphics::{ GlGraphics, OpenGL };
 use image::RgbImage;
 
-use starplot::colors::*;
-use starplot::consts::*;
+use starplot::colors;
+use starplot::consts;
 use starplot::visual::Starplot;
 use starplot::app::{Action, App};
 
@@ -25,7 +25,7 @@ fn main() {
     // Create a Piston window
     let mut window: PistonWindow = WindowSettings::new(
             "starplot",
-            [WINDOW_SIZE as u32, WINDOW_SIZE as u32]
+            [consts::WINDOW_SIZE as u32, consts::WINDOW_SIZE as u32]
         )
         .opengl(opengl)
         .build()
@@ -37,22 +37,24 @@ fn main() {
     let ref font = assets.join("Inconsolata-Regular.ttf");
 
     // Generate an Starplot
-    let mut starplot = Starplot::init(STARPLOT_SIZE, 
-                                      STARPLOT_POS_X, 
-                                      STARPLOT_POS_Y);
+    let mut starplot = Starplot::init(consts::STARPLOT_SIZE, 
+                                      consts::STARPLOT_POS_X, 
+                                      consts::STARPLOT_POS_Y);
 
     // Add dimensions to the Starplot
-    starplot.add_dim(0.2, [0.0, 1.0], "first (0.2)", RED);
-    starplot.add_dim(0.8, [0.0, 1.0], "second (0.8)", GREEN);
-    starplot.add_dim(50.0, [0.0, 200.0], "third (50.0)", BLUE);
-    starplot.add_dim(0.4, [0.0, 1.0], "forth (0.4)", GREEN);
-    starplot.add_dim(0.7, [0.0, 1.0], "fifth (0.7)", RED);
-    starplot.add_dim(0.6, [0.0, 1.0], "sixth (0.6)", GREEN);
-    starplot.add_dim(0.5, [0.0, 1.0], "seventh (0.5)", BLUE);
-    starplot.add_dim(0.3, [0.0, 1.0], "eight (0.3)", GREEN);
+    starplot.add_dim(0.2, [0.0, 1.0], "first (0.2)", colors::RED);
+    starplot.add_dim(0.8, [0.0, 1.0], "second (0.8)", colors::MAGENTA);
+    starplot.add_dim(50.0, [0.0, 200.0], "third (50.0)", colors::ORANGE);
+    starplot.add_dim(0.4, [0.0, 1.0], "fourth (0.4)", colors::YELLOW);
+    starplot.add_dim(0.7, [0.0, 1.0], "fifth (0.7)", colors::GREEN);
+    starplot.add_dim(0.6, [0.0, 1.0], "sixth (0.6)", colors::SEA_GREEN);
+    starplot.add_dim(0.5, [0.0, 1.0], "seventh (0.5)", colors::CYAN);
+    starplot.add_dim(0.3, [0.0, 1.0], "eighth (0.3)", colors::BLUE);
+    starplot.add_dim(0.5, [0.0, 1.0], "ninth (0.5)", colors::DARK_BLUE);
+    starplot.add_dim(0.6, [0.0, 1.0], "tenth (0.6)", colors::VIOLET);
 
     // Add Starplot to the Application
-    let mut app = App::new( RgbImage::new(WINDOW_SIZE as u32, WINDOW_SIZE as u32), 
+    let mut app = App::new( RgbImage::new(consts::WINDOW_SIZE as u32, consts::WINDOW_SIZE as u32), 
                             GlGraphics::new(opengl) );
     app.def_star(starplot);
 
@@ -60,7 +62,7 @@ fn main() {
     app.preproc();
 
     let mut events = window.events();
-    loop { 
+    loop { // listen to events
         let e = events.next(&mut window);
         match e {
 

@@ -1,10 +1,7 @@
 
-use piston::window::WindowSettings;
-use piston::event_loop::*;
 use piston::input::*;
-use piston_window::{PistonWindow};
 
-use opengl_graphics::{GlGraphics, OpenGL};
+use opengl_graphics::{GlGraphics};
 use opengl_graphics::glyph_cache::{GlyphCache};
 
 use graphics::{clear, ellipse, rectangle};
@@ -17,8 +14,7 @@ use image::RgbImage;
 use std::path::{Path};
 use std::f64::consts::{PI};
 
-use super::visual::Starplot;
-use super::dim::{Dim};
+use super::visual::{Starplot, Dim};
 use super::consts::*;
 use super::colors::*;
 
@@ -77,10 +73,19 @@ impl App {
           -(initial[1] - margin)*val*angle.sin() + initial[1] ]
     }
 
-    fn get_label_point(initial: &[f64; 2], margin: &f64, margin_label: &f64, angle: &f64, label_size: usize, val: &f64) -> [f64; 2] {
+    /// Get label position depending on the value and angle of the associated dimension
+    fn get_label_point(initial: &[f64; 2], 
+                       margin: &f64, 
+                       margin_label: &f64, 
+                       angle: &f64, 
+                       label_size: usize, 
+                       val: &f64) -> [f64; 2] {
+
         let mut extra_x: f64 = 0.0;
+
+        // if angle is on the left side: reduce x position for avoiding overlapping
         if angle > &(PI*0.6) && angle < &(3.0*PI/2.0) {
-            extra_x = 6.25*(label_size as f64);
+            extra_x = 6.25*(label_size as f64); // size of font Inconsolata character
         }
 
         [ (initial[0] - margin + margin_label)*val*angle.cos() + initial[0] - extra_x, 
@@ -99,6 +104,7 @@ impl App {
         let degree_div: f64 = 360.0/(self.star.dimensions.len() as f64);
 
         // get for each dimension it's final point (initial point is the center of the ellipse)
+        // and the associated label position
         for (i, dim) in self.star.dimensions.iter_mut().enumerate() {            
             let angle: f64 = App::get_angle(&degree_div, i as f64);  
 

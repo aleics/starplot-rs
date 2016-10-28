@@ -1,4 +1,4 @@
-use super::dim::{Dim, Label};
+
 use super::consts::*;
 
 /// Starplot defines the position, size and the different dimensions of
@@ -54,4 +54,23 @@ impl Starplot {
                                    i_point: [0.0, 0.0], 
                                    f_point: [0.0, 0.0] });
     }
+}
+
+/// Dim defines a dimension (axis) of an Starplot
+#[derive(Clone)]
+pub struct Dim {
+    pub val: f64,    
+    pub range: [f64; 2],
+    pub label: Label,
+    pub color: [f32; 4],
+    pub i_point: [f64; 2],
+    pub f_point: [f64; 2]
+}
+
+/// Label defines the label description and its 
+/// position in a Starplot
+#[derive(Clone)]
+pub struct Label {
+    pub description: &'static str,
+    pub pos: [f64; 2]
 }
