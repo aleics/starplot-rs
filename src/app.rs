@@ -30,7 +30,8 @@ pub struct App {
     _img: RgbImage, // RGB image
     gl: GlGraphics, // OpenGL drawing backend
     star: Starplot,  // Starplot
-    background: types::Color
+    background: types::Color, // Application background
+    title: String // Title of the Visualization
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,12 +42,16 @@ impl App {
 
     /// Creates a new App instance
     pub fn new(img: RgbImage, gl: GlGraphics) -> App {
-        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE }
+        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE, title: String::default() }
     }
 
     /// Defines the Starplot configuration for the visualization
     pub fn def_star(&mut self, star: Starplot) {
         self.star = star;
+    }
+
+    pub fn title(&mut self, title: String) {
+        self.title = title;
     }
 
     /// Get the contours of the Starplot dimensions
@@ -139,15 +144,25 @@ impl App {
         // get the CharacterCache that describes the used font properties
         let mut glyph = GlyphCache::new(font_path).unwrap();
         
+        // clone background Color of App
         let background: types::Color = self.background.clone();
+
+        // clone title of App
+        let title: String = self.title.clone();
+
         self.gl.draw(args.viewport(), |c, gl| {
             // clear the window
             clear(background, gl);                 
             
+            // specify position of title and draw it
+            let transform = c.transform.trans(TITLE_POS, MARGIN);
+            Text::new_color(star.color, 20).draw(&*title, &mut glyph, &c.draw_state, transform, gl);
+
             // draw dimensions and labels
             for dim in star.dimensions.iter() {
                 Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], &c.draw_state, c.transform, gl);
 
+                // specify position of each label and draw it
                 let transform = c.transform.trans(dim.label.pos[0], dim.label.pos[1]); 
                 Text::new_color(dim.color, 10).draw(&*dim.label.description, &mut glyph, &c.draw_state, transform, gl);                
             }

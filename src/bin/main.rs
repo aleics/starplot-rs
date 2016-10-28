@@ -49,7 +49,7 @@ fn main() {
     starplot.add_dim(0.7, [0.0, 1.0], "fifth", colors::GREEN);
     starplot.add_dim(0.6, [0.0, 1.0], "sixth", colors::SEA_GREEN);
     starplot.add_dim(0.5, [0.0, 1.0], "seventh", colors::CYAN);
-    starplot.add_dim(0.3, [0.0, 1.0], "eighth", colors::BLUE);
+    starplot.add_dim(0.8, [0.0, 1.0], "eighth", colors::BLUE);
     starplot.add_dim(0.5, [0.0, 1.0], "ninth", colors::DARK_BLUE);
     starplot.add_dim(0.6, [0.0, 1.0], "tenth", colors::VIOLET);
 
@@ -57,6 +57,9 @@ fn main() {
     let mut app = App::new( RgbImage::new(consts::WINDOW_WIDTH as u32, consts::WINDOW_HEIGHT as u32), 
                             GlGraphics::new(opengl) );
     app.def_star(starplot);
+
+    // Specify title
+    app.title("This is a test!".to_string());
 
     // Preprocessing
     app.preproc();

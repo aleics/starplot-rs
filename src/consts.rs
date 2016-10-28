@@ -23,3 +23,6 @@ pub const STARPLOT_POS_X: f64 = (WINDOW_WIDTH/2.0) - (STARPLOT_SIZE/2.0);
 
 // Standard Starplot y-position
 pub const STARPLOT_POS_Y: f64 = (WINDOW_HEIGHT/2.0) - (STARPLOT_SIZE/2.0);
+
+// Title position
+pub const TITLE_POS: f64 = WINDOW_HEIGHT*0.4;
