@@ -1,4 +1,3 @@
-
 use super::dim::{Dim, Label};
 use super::consts::*;
 
