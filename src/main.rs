@@ -163,17 +163,14 @@ impl App {
             clear(WHITE, gl);
 
             // draw ellipse
-            ellipse(BLACK, square, c.transform, gl);            
-
-            text::Text::new_color(BLACK, 32).draw("hello world!", 
-                                                      &mut glyph, 
-                                                      &c.draw_state, 
-                                                      c.transform, 
-                                                      gl);            
+            ellipse(BLACK, square, c.transform, gl);          
             
-            // draw dimensions
+            // draw dimensions and labels
             for dim in star.dimensions.iter() {
-                Line::new(BLACK, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], &c.draw_state, c.transform, gl);                
+                Line::new(BLACK, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], &c.draw_state, c.transform, gl);
+
+                let transform = c.transform.trans(dim.f_point[0], dim.f_point[1]); 
+                text::Text::new_color(BLACK, 10).draw(dim.label, &mut glyph, &c.draw_state, transform, gl);                
             }
             // draw contours
             for contour in contours.iter() {
@@ -205,7 +202,7 @@ fn main() {
     // Get the font for the text representation
     let assets = find_folder::Search::ParentsThenKids(3, 3)
         .for_folder("assets").unwrap();
-    let ref font = assets.join("FiraSans-Regular.ttf");
+    let ref font = assets.join("Inconsolata-Regular.ttf");
 
     // Generate an Starplot
     let mut starplot = Starplot::init(STARPLOT_SIZE, 
