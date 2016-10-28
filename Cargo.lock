@@ -3,6 +3,7 @@ name = "starplot"
 version = "0.1.0"
 dependencies = [
  "find_folder 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "image 0.10.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston2d-graphics 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston2d-opengl_graphics 0.35.0 (registry+https://github.com/rust-lang/crates.io-index)",
