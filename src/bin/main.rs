@@ -46,7 +46,7 @@ fn main() {
     starplot.add_dim(0.8, [0.0, 1.0], "second", colors::MAGENTA);
     starplot.add_dim(50.0, [0.0, 200.0], "third", colors::ORANGE);
     starplot.add_dim(0.4, [0.0, 1.0], "fourth", colors::YELLOW);
-    starplot.add_dim(0.7, [0.0, 1.0], "fifth", colors::GREEN);
+    starplot.add_dim(0.5, [0.0, 1.0], "fifth", colors::GREEN);
     starplot.add_dim(0.6, [0.0, 1.0], "sixth", colors::SEA_GREEN);
     starplot.add_dim(0.5, [0.0, 1.0], "seventh", colors::CYAN);
     starplot.add_dim(0.8, [0.0, 1.0], "eighth", colors::BLUE);
@@ -77,8 +77,9 @@ fn main() {
                 let action = app.on_input(inp); // handle user input
                 match action {
                     Some(Action::Quit) => { break; } // exit
-                    Some(Action::SaveAsPhoto) => { }
-                    Some(Action::DoNegative) => { app.negative(); }
+                    Some(Action::SaveAsPhoto) => { app.photo(); }
+                    Some(Action::InvertColor) => { app.invert(); }
+                    Some(Action::Rotation) => { app.rotation(); }
                     _ => {}
                 } 
             }

@@ -9,6 +9,9 @@ pub const WINDOW_HEIGHT: f64 = 500.0;
 // Center of the Starplot
 pub const CENTER: [f64; 2] = [WINDOW_WIDTH/2.0, WINDOW_HEIGHT/2.0];
 
+// Initial value is where the Starplot is positionated (0, 0) taking in count its size
+pub const INITIAL: [f64; 2] = [0f64 + (STARPLOT_SIZE/2.0), 0f64 + (STARPLOT_SIZE/2.0)];
+
 // Margin of the window
 pub const MARGIN: f64 = 50.0;
 
@@ -26,3 +29,6 @@ pub const STARPLOT_POS_Y: f64 = (WINDOW_HEIGHT/2.0) - (STARPLOT_SIZE/2.0);
 
 // Title position
 pub const TITLE_POS: f64 = WINDOW_HEIGHT*0.4;
+
+// Rotation step defined for the rotation
+pub const ROTATION_STEP: f64 = 0.05;

@@ -21,7 +21,8 @@ use super::colors::*;
 /// Action that is possible on the application
 pub enum Action {
     SaveAsPhoto,
-    DoNegative,
+    InvertColor,
+    Rotation,
     Quit
 }
 
@@ -31,7 +32,8 @@ pub struct App {
     gl: GlGraphics, // OpenGL drawing backend
     star: Starplot,  // Starplot
     background: types::Color, // Application background
-    title: String // Title of the Visualization
+    title: String, // Title of the Visualization
+    rotation: f64
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +44,7 @@ impl App {
 
     /// Creates a new App instance
     pub fn new(img: RgbImage, gl: GlGraphics) -> App {
-        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE, title: String::default() }
+        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE, title: String::default(), rotation: 0f64 }
     }
 
     /// Defines the Starplot configuration for the visualization
@@ -76,8 +78,8 @@ impl App {
 
     /// Get end point of dimension depending on it's value and angle
     fn get_end_point(initial: &[f64; 2], margin: &f64, angle: &f64, val: &f64) -> [f64; 2] {
-        [ (initial[0] - margin)*val*angle.cos() + initial[0], 
-          -(initial[1] - margin)*val*angle.sin() + initial[1] ]
+        [ (initial[0] - margin)*val*angle.cos(), 
+          -(initial[1] - margin)*val*angle.sin() ]
     }
 
     /// Get label position depending on the value and angle of the associated dimension
@@ -95,8 +97,8 @@ impl App {
             extra_x = 6.25*(label_size as f64); // size of font Inconsolata character
         }
 
-        [ (initial[0] - margin + margin_label)*val*angle.cos() + initial[0] - extra_x, 
-          -(initial[1] - margin + margin_label)*val*angle.sin() + initial[1] ]
+        [ (initial[0] - margin + margin_label)*val*angle.cos() - extra_x, 
+          -(initial[1] - margin + margin_label)*val*angle.sin() ]
     }
 
     /// Get angle in radiants for each dimension
@@ -115,13 +117,14 @@ impl App {
         for (i, dim) in self.star.dimensions.iter_mut().enumerate() {            
             let angle: f64 = App::get_angle(&degree_div, i as f64);  
 
-            dim.i_point = [ CENTER[0], CENTER[1] ];
-            dim.f_point = App::get_end_point( &[ CENTER[0], CENTER[1] ], 
+            // initial point is (0,0) taking in count ellipse size
+            dim.i_point = [ INITIAL[0], INITIAL[1] ];
+            dim.f_point = App::get_end_point( &[ STARPLOT_POS_X, STARPLOT_POS_Y ],
                                               &MARGIN, 
                                               &angle, 
                                               &dim.val);
 
-            dim.label.pos = App::get_label_point( &[ CENTER[0], CENTER[1] ], 
+            dim.label.pos = App::get_label_point( &[ STARPLOT_POS_X, STARPLOT_POS_Y ], 
                                                   &MARGIN, 
                                                   &MARGIN_LABEL, 
                                                   &angle, 
@@ -136,7 +139,7 @@ impl App {
     /// Render the Starplot
     pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {  
         // define the position and size of the ellipse using a square
-        let square = rectangle::square(self.star.x, self.star.y, self.star.size);
+        let square = rectangle::square(0.0, 0.0, self.star.size);
 
         // clone Starplot for avoiding borrow error
         let star: Starplot = self.star.clone();
@@ -150,38 +153,59 @@ impl App {
         // clone title of App
         let title: String = self.title.clone();
 
+        let rot: f64 = self.rotation.clone();
+
         self.gl.draw(args.viewport(), |c, gl| {
+            let initial_transform = c.transform.trans(star.x, star.y) // make the origin at the center of the window
+                                               .rot_rad(rot)          // realize a rotation (if configured)
+                                               .trans(-0.5*STARPLOT_SIZE, -0.5*STARPLOT_SIZE); // take count the size of the object
+
             // clear the window
             clear(background, gl);                 
             
             // specify position of title and draw it
             let transform = c.transform.trans(TITLE_POS, MARGIN);
-            Text::new_color(star.color, 20).draw(&*title, &mut glyph, &c.draw_state, transform, gl);
+            Text::new_color(star.color, 20).draw(&*title, 
+                                                 &mut glyph, 
+                                                 &c.draw_state, 
+                                                 transform, 
+                                                 gl);
 
             // draw dimensions and labels
             for dim in star.dimensions.iter() {
-                Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], &c.draw_state, c.transform, gl);
+                Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], 
+                                               &c.draw_state, 
+                                               initial_transform, 
+                                               gl);
 
                 // specify position of each label and draw it
-                let transform = c.transform.trans(dim.label.pos[0], dim.label.pos[1]); 
-                Text::new_color(dim.color, 10).draw(&*dim.label.description, &mut glyph, &c.draw_state, transform, gl);                
+                let transform = initial_transform.trans(dim.label.pos[0], dim.label.pos[1]); 
+                Text::new_color(dim.color, 10).draw(&*dim.label.description, 
+                                                    &mut glyph, 
+                                                    &c.draw_state, 
+                                                    transform, 
+                                                    gl);                
             }
             // draw contours
             for contour in star.contours.iter() {
-                Line::new(star.color, 1.0).draw(*contour, &c.draw_state, c.transform, gl);
+                Line::new(star.color, 1.0).draw(*contour, 
+                                                &c.draw_state, 
+                                                initial_transform, 
+                                                gl);
             }
 
             // draw ellipse
-            ellipse(star.color, square, c.transform, gl);    
+            ellipse(star.color, square, initial_transform, gl);    
         });
     }
 
     /// Save visualization as a photo
-    fn _photo(&mut self) {
+    pub fn photo(&mut self) {
         unimplemented!()
     }
 
-    pub fn negative(&mut self) {
+    /// Inverts the background and Starplot color
+    pub fn invert(&mut self) {
         if self.background == WHITE && self.star.color == BLACK {
             self.background = BLACK;
             self.star.color = WHITE;
@@ -189,6 +213,11 @@ impl App {
             self.background = WHITE;
             self.star.color = BLACK;
         }
+    }
+
+    /// Rotates the Starplot 
+    pub fn rotation(&mut self) {
+        self.rotation += ROTATION_STEP;
     }
 
     /// Handles the user input
@@ -208,7 +237,15 @@ impl App {
                         return Some(Action::SaveAsPhoto);
                     }
                     Button::Keyboard(Key::N) => {
-                        return Some(Action::DoNegative);
+                        return Some(Action::InvertColor);
+                    }                    
+                    _ => {}
+                }
+            }
+            Input::Press(but) => {
+                match but {
+                    Button::Keyboard(Key::R) => {
+                        return Some(Action::Rotation);
                     }
                     _ => {}
                 }

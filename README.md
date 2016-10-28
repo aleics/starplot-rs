@@ -49,3 +49,4 @@ Press after `Q` or `ESC` to exit.
 * `N`: switch night/day view.
 * `Q`: exit the application.
 * `ESC`: exit the application. 
+* `R`: rotate Star Plot.
