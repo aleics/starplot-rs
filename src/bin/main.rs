@@ -25,7 +25,7 @@ fn main() {
     // Create a Piston window
     let mut window: PistonWindow = WindowSettings::new(
             "starplot",
-            [consts::WINDOW_SIZE as u32, consts::WINDOW_SIZE as u32]
+            [consts::WINDOW_WIDTH as u32, consts::WINDOW_HEIGHT as u32]
         )
         .opengl(opengl)
         .build()
@@ -42,19 +42,19 @@ fn main() {
                                       consts::STARPLOT_POS_Y);
 
     // Add dimensions to the Starplot
-    starplot.add_dim(0.2, [0.0, 1.0], "first (0.2)", colors::RED);
-    starplot.add_dim(0.8, [0.0, 1.0], "second (0.8)", colors::MAGENTA);
-    starplot.add_dim(50.0, [0.0, 200.0], "third (50.0)", colors::ORANGE);
-    starplot.add_dim(0.4, [0.0, 1.0], "fourth (0.4)", colors::YELLOW);
-    starplot.add_dim(0.7, [0.0, 1.0], "fifth (0.7)", colors::GREEN);
-    starplot.add_dim(0.6, [0.0, 1.0], "sixth (0.6)", colors::SEA_GREEN);
-    starplot.add_dim(0.5, [0.0, 1.0], "seventh (0.5)", colors::CYAN);
-    starplot.add_dim(0.3, [0.0, 1.0], "eighth (0.3)", colors::BLUE);
-    starplot.add_dim(0.5, [0.0, 1.0], "ninth (0.5)", colors::DARK_BLUE);
-    starplot.add_dim(0.6, [0.0, 1.0], "tenth (0.6)", colors::VIOLET);
+    starplot.add_dim(0.2, [0.0, 1.0], "first", colors::RED);
+    starplot.add_dim(0.8, [0.0, 1.0], "second", colors::MAGENTA);
+    starplot.add_dim(50.0, [0.0, 200.0], "third", colors::ORANGE);
+    starplot.add_dim(0.4, [0.0, 1.0], "fourth", colors::YELLOW);
+    starplot.add_dim(0.7, [0.0, 1.0], "fifth", colors::GREEN);
+    starplot.add_dim(0.6, [0.0, 1.0], "sixth", colors::SEA_GREEN);
+    starplot.add_dim(0.5, [0.0, 1.0], "seventh", colors::CYAN);
+    starplot.add_dim(0.3, [0.0, 1.0], "eighth", colors::BLUE);
+    starplot.add_dim(0.5, [0.0, 1.0], "ninth", colors::DARK_BLUE);
+    starplot.add_dim(0.6, [0.0, 1.0], "tenth", colors::VIOLET);
 
     // Add Starplot to the Application
-    let mut app = App::new( RgbImage::new(consts::WINDOW_SIZE as u32, consts::WINDOW_SIZE as u32), 
+    let mut app = App::new( RgbImage::new(consts::WINDOW_WIDTH as u32, consts::WINDOW_HEIGHT as u32), 
                             GlGraphics::new(opengl) );
     app.def_star(starplot);
 
@@ -75,6 +75,7 @@ fn main() {
                 match action {
                     Some(Action::Quit) => { break; } // exit
                     Some(Action::SaveAsPhoto) => { }
+                    Some(Action::DoNegative) => { app.negative(); }
                     _ => {}
                 } 
             }

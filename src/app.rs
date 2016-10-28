@@ -1,4 +1,3 @@
-
 use piston::input::*;
 
 use opengl_graphics::{GlGraphics};
@@ -8,6 +7,7 @@ use graphics::{clear, ellipse, rectangle};
 use graphics::line::Line;
 use graphics::text::Text;
 use graphics::Transformed;
+use graphics::types;
 
 use image::RgbImage;
 
@@ -21,14 +21,16 @@ use super::colors::*;
 /// Action that is possible on the application
 pub enum Action {
     SaveAsPhoto,
+    DoNegative,
     Quit
 }
 
 /// App defines the global application variables for the visualization an Starplot
 pub struct App {
-    _img: RgbImage, // RGBA image
+    _img: RgbImage, // RGB image
     gl: GlGraphics, // OpenGL drawing backend
-    star: Starplot  // Starplot
+    star: Starplot,  // Starplot
+    background: types::Color
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +41,7 @@ impl App {
 
     /// Creates a new App instance
     pub fn new(img: RgbImage, gl: GlGraphics) -> App {
-        App {_img: img,gl: gl, star: Starplot::new() }
+        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE }
     }
 
     /// Defines the Starplot configuration for the visualization
@@ -137,30 +139,41 @@ impl App {
         // get the CharacterCache that describes the used font properties
         let mut glyph = GlyphCache::new(font_path).unwrap();
         
+        let background: types::Color = self.background.clone();
         self.gl.draw(args.viewport(), |c, gl| {
             // clear the window
-            clear(WHITE, gl);                 
+            clear(background, gl);                 
             
             // draw dimensions and labels
             for dim in star.dimensions.iter() {
                 Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], &c.draw_state, c.transform, gl);
 
                 let transform = c.transform.trans(dim.label.pos[0], dim.label.pos[1]); 
-                Text::new_color(dim.color, 10).draw(dim.label.description, &mut glyph, &c.draw_state, transform, gl);                
+                Text::new_color(dim.color, 10).draw(&*dim.label.description, &mut glyph, &c.draw_state, transform, gl);                
             }
             // draw contours
             for contour in star.contours.iter() {
-                Line::new(BLACK, 1.0).draw(*contour, &c.draw_state, c.transform, gl);
+                Line::new(star.color, 1.0).draw(*contour, &c.draw_state, c.transform, gl);
             }
 
             // draw ellipse
-            ellipse(BLACK, square, c.transform, gl);    
+            ellipse(star.color, square, c.transform, gl);    
         });
     }
 
     /// Save visualization as a photo
     fn _photo(&mut self) {
         unimplemented!()
+    }
+
+    pub fn negative(&mut self) {
+        if self.background == WHITE && self.star.color == BLACK {
+            self.background = BLACK;
+            self.star.color = WHITE;
+        } else if self.background == BLACK && self.star.color == WHITE {
+            self.background = WHITE;
+            self.star.color = BLACK;
+        }
     }
 
     /// Handles the user input
@@ -178,6 +191,9 @@ impl App {
                     }
                     Button::Keyboard(Key::S) => {
                         return Some(Action::SaveAsPhoto);
+                    }
+                    Button::Keyboard(Key::N) => {
+                        return Some(Action::DoNegative);
                     }
                     _ => {}
                 }

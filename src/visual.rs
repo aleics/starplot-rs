@@ -1,5 +1,8 @@
 
+use graphics::types::Color;
+
 use super::consts::*;
+use super::colors::BLACK;
 
 /// Starplot defines the position, size and the different dimensions of
 /// the visualization
@@ -8,6 +11,7 @@ pub struct Starplot {
     pub size: f64,
     pub x: f64,
     pub y: f64,
+    pub color: Color,
     pub dimensions: Vec<Dim>,
     pub contours: Vec<[f64; 4]>
 }
@@ -23,6 +27,7 @@ impl Starplot {
         Starplot { size: STARPLOT_SIZE, 
                    x: 0.0, 
                    y: 0.0, 
+                   color: BLACK,
                    dimensions: Vec::new(),
                    contours: Vec::new() }
     }
@@ -32,8 +37,33 @@ impl Starplot {
         Starplot { size: size, 
                    x: x, 
                    y: y, 
+                   color: BLACK,
                    dimensions: Vec::new(),
                    contours: Vec::new() }
+    }
+
+    fn concat_label(val: &f64, range: &[f64; 2], label: &'static str) -> String {
+        let range_str_a: &str = &*range[0].to_string();
+        let range_str_b: &str = &*range[1].to_string();
+        let val_str: &str = &*val.to_string();
+
+        let mut label_string = String::with_capacity(label.len() + 
+                                                     range_str_a.len() + 
+                                                     range_str_b.len() +
+                                                     val_str.len() + 
+                                                     7 );
+        
+        label_string.push_str(label);
+        label_string.push_str("(");
+        label_string.push_str(val_str);
+        label_string.push_str(") ");
+        label_string.push_str("[");
+        label_string.push_str(range_str_a);
+        label_string.push_str(", ");
+        label_string.push_str(range_str_b);
+        label_string.push_str("]");
+
+        label_string
     }
 
     /// Adds a dimension to the Starplot with the defined configuration variables
@@ -47,9 +77,12 @@ impl Starplot {
         }
 
         let val = (val - range[0])/(range[1] - range[0]);
+
+        let label_string: String = Starplot::concat_label(&val, &range, label);
+        
         self.dimensions.push(Dim { val: val, 
                                    range: range, 
-                                   label: Label { description: label, pos: [0.0, 0.0] },
+                                   label: Label { description: label_string, pos: [0.0, 0.0] },
                                    color: color, 
                                    i_point: [0.0, 0.0], 
                                    f_point: [0.0, 0.0] });
@@ -71,6 +104,6 @@ pub struct Dim {
 /// position in a Starplot
 #[derive(Clone)]
 pub struct Label {
-    pub description: &'static str,
+    pub description: String,
     pub pos: [f64; 2]
 }
