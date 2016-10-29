@@ -144,8 +144,11 @@ impl App {
 
     /// Render the Starplot
     pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {  
-        // define the position and size of the ellipse using a square
-        let square = rectangle::square(0.0, 0.0, self.star.size_sphere);
+        // define the position and size of the core ellipse using a square
+        let core_square = rectangle::square(0.0, 0.0, self.star.size_sphere);
+
+        // define the position and size of the exterior ellipse using a square
+        let ext_square = rectangle::square(0.0, 0.0, self.star.size_ext*1.55);
 
         // clone Starplot for avoiding borrow error
         let star: Starplot = self.star.clone();
@@ -188,6 +191,13 @@ impl App {
                                                  &c.draw_state, 
                                                  legend_transform, 
                                                  gl);
+            
+            // specify exterior ellipse
+            ellipse::Ellipse::new(background).border(ellipse::Border {color: GRAY, radius: 0.5 })
+                                             .draw(ext_square,
+                                                   &c.draw_state,
+                                                   initial_transform.trans(-star.size_ext*0.775, -star.size_ext*0.775),
+                                                   gl);  
 
             // draw dimensions and labels
             for (i, dim) in star.dimensions.iter().enumerate() {
@@ -225,7 +235,7 @@ impl App {
             }
 
             // draw ellipse
-            ellipse(star.color, square, initial_transform, gl);    
+            ellipse(star.color, core_square, initial_transform, gl);    
         });
     }
 
