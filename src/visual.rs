@@ -8,7 +8,8 @@ use super::colors::BLACK;
 /// the visualization
 #[derive(Clone)]
 pub struct Starplot {
-    pub size: f64,
+    pub size_sphere: f64,
+    pub size_ext: f64,
     pub x: f64,
     pub y: f64,
     pub color: Color,
@@ -24,7 +25,8 @@ impl Starplot {
 
     /// Creates a new Starplot variable
     pub fn new() -> Starplot {
-        Starplot { size: STARPLOT_SIZE, 
+        Starplot { size_sphere: STARPLOT_SPHERE_SIZE,
+                   size_ext: STARPLOT_SIZE, 
                    x: 0.0, 
                    y: 0.0, 
                    color: BLACK,
@@ -33,8 +35,9 @@ impl Starplot {
     }
 
     /// Initializes a new Starplot with a defined position and size
-    pub fn init(size: f64, x: f64, y: f64) -> Starplot {
-        Starplot { size: size, 
+    pub fn init(size_sphere: f64, size: f64, x: f64, y: f64) -> Starplot {
+        Starplot { size_sphere: size_sphere,
+                   size_ext: size, 
                    x: x, 
                    y: y, 
                    color: BLACK,
@@ -42,7 +45,8 @@ impl Starplot {
                    contours: Vec::new() }
     }
 
-    fn concat_label(val: &f64, range: &[f64; 2], label: &'static str) -> String {
+    /// Gets the full label description for the legend reference
+    fn concat_label(val: &f64, range: &[f64; 2], label: &'static str, index: usize) -> String {
         let range_str_a: &str = &*range[0].to_string();
         let range_str_b: &str = &*range[1].to_string();
         let val_str: &str = &*val.to_string();
@@ -53,6 +57,8 @@ impl Starplot {
                                                      val_str.len() + 
                                                      7 );
         
+        label_string.push_str(&*index.to_string());
+        label_string.push_str(" ");
         label_string.push_str(label);
         label_string.push_str("(");
         label_string.push_str(val_str);
@@ -78,7 +84,7 @@ impl Starplot {
 
         let val = (val - range[0])/(range[1] - range[0]);
 
-        let label_string: String = Starplot::concat_label(&val, &range, label);
+        let label_string: String = Starplot::concat_label(&val, &range, label, self.dimensions.len());
         
         self.dimensions.push(Dim { val: val, 
                                    range: range, 
@@ -106,4 +112,36 @@ pub struct Dim {
 pub struct Label {
     pub description: String,
     pub pos: [f64; 2]
+}
+
+/// Legend defines the legend configuration for
+/// the visualization
+#[derive(Clone)]
+pub struct Legend {
+    pub description: Vec<String>,
+    pub pos: Vec<[f64; 2]>
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Inherent methods
+////////////////////////////////////////////////////////////////////////////////
+
+impl Legend {
+
+    /// Creates a new Legend instance
+    pub fn new() -> Legend {
+        Legend {
+            description: Vec::new(),
+            pos: Vec::new()
+        }
+    }
+
+    /// Add the description to the legend
+    pub fn add_description(&mut self, description: String) {
+        let mut pos: [f64; 2] = [0.0, 0.0];
+        pos[1] = LEGEND_NEWLINE_STEP*((self.pos.len()+1) as f64);
+
+        self.description.push(description);
+        self.pos.push(pos);
+    }
 }

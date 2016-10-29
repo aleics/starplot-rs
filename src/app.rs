@@ -14,7 +14,7 @@ use image::RgbImage;
 use std::path::{Path};
 use std::f64::consts::{PI};
 
-use super::visual::{Starplot, Dim};
+use super::visual::{Starplot, Dim, Legend};
 use super::consts::*;
 use super::colors::*;
 
@@ -33,7 +33,8 @@ pub struct App {
     star: Starplot,  // Starplot
     background: types::Color, // Application background
     title: String, // Title of the Visualization
-    rotation: f64
+    rotation: f64,
+    legend: Legend
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +45,13 @@ impl App {
 
     /// Creates a new App instance
     pub fn new(img: RgbImage, gl: GlGraphics) -> App {
-        App {_img: img,gl: gl, star: Starplot::new(), background: WHITE, title: String::default(), rotation: 0f64 }
+        App {_img: img,
+             gl: gl, 
+             star: Starplot::new(), 
+             background: WHITE, 
+             title: String::default(), 
+             rotation: 0f64,
+             legend: Legend::new() }
     }
 
     /// Defines the Starplot configuration for the visualization
@@ -52,6 +59,7 @@ impl App {
         self.star = star;
     }
 
+    // Defines title of the visualization
     pub fn title(&mut self, title: String) {
         self.title = title;
     }
@@ -77,28 +85,23 @@ impl App {
     }
 
     /// Get end point of dimension depending on it's value and angle
-    fn get_end_point(initial: &[f64; 2], margin: &f64, angle: &f64, val: &f64) -> [f64; 2] {
-        [ (initial[0] - margin)*val*angle.cos(), 
-          -(initial[1] - margin)*val*angle.sin() ]
+    fn get_end_point(size: &[f64; 2], margin: &f64, angle: &f64, val: &f64) -> [f64; 2] {
+        [ (size[0] - margin)*val*angle.cos(), 
+          -(size[1] - margin)*val*angle.sin() ]
     }
 
     /// Get label position depending on the value and angle of the associated dimension
-    fn get_label_point(initial: &[f64; 2], 
+    fn get_label_point(size: &[f64; 2], 
                        margin: &f64, 
                        margin_label: &f64, 
                        angle: &f64, 
-                       label_size: usize, 
+                       //label_size: usize, 
                        val: &f64) -> [f64; 2] {
 
-        let mut extra_x: f64 = 0.0;
+        let extra: f64 = 5.0;
 
-        // if angle is on the left side: reduce x position for avoiding overlapping
-        if angle > &(PI*0.6) && angle < &(3.0*PI/2.0) {
-            extra_x = 6.25*(label_size as f64); // size of font Inconsolata character
-        }
-
-        [ (initial[0] - margin + margin_label)*val*angle.cos() - extra_x, 
-          -(initial[1] - margin + margin_label)*val*angle.sin() ]
+        [ (size[0] - margin + margin_label)*val*angle.cos() + extra*angle.cos(), 
+          -(size[1] - margin + margin_label)*val*angle.sin() ]
     }
 
     /// Get angle in radiants for each dimension
@@ -119,17 +122,20 @@ impl App {
 
             // initial point is (0,0) taking in count ellipse size
             dim.i_point = [ INITIAL[0], INITIAL[1] ];
-            dim.f_point = App::get_end_point( &[ STARPLOT_POS_X, STARPLOT_POS_Y ],
+            dim.f_point = App::get_end_point( &[ self.star.size_ext, self.star.size_ext ],
                                               &MARGIN, 
                                               &angle, 
                                               &dim.val);
 
-            dim.label.pos = App::get_label_point( &[ STARPLOT_POS_X, STARPLOT_POS_Y ], 
+            // get label point for the reference of the legend
+            dim.label.pos = App::get_label_point( &[ self.star.size_ext, self.star.size_ext ], 
                                                   &MARGIN, 
                                                   &MARGIN_LABEL, 
                                                   &angle, 
-                                                  dim.label.description.len(), 
-                                                  &dim.val); 
+                                                  &dim.val);
+
+            // clone label description to the legend
+            self.legend.add_description(dim.label.description.clone());
         }
 
         // get the contour connections between dimensions
@@ -139,7 +145,7 @@ impl App {
     /// Render the Starplot
     pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {  
         // define the position and size of the ellipse using a square
-        let square = rectangle::square(0.0, 0.0, self.star.size);
+        let square = rectangle::square(0.0, 0.0, self.star.size_sphere);
 
         // clone Starplot for avoiding borrow error
         let star: Starplot = self.star.clone();
@@ -153,26 +159,38 @@ impl App {
         // clone title of App
         let title: String = self.title.clone();
 
+        // clone rotation of App
         let rot: f64 = self.rotation.clone();
+
+        // clone legend of App
+        let legend: Legend = self.legend.clone();
 
         self.gl.draw(args.viewport(), |c, gl| {
             let initial_transform = c.transform.trans(star.x, star.y) // make the origin at the center of the window
                                                .rot_rad(rot)          // realize a rotation (if configured)
-                                               .trans(-0.5*STARPLOT_SIZE, -0.5*STARPLOT_SIZE); // take count the size of the object
+                                               .trans(-0.5*STARPLOT_SPHERE_SIZE, -0.5*STARPLOT_SPHERE_SIZE); // take count the size of the object
 
             // clear the window
             clear(background, gl);                 
             
             // specify position of title and draw it
-            let transform = c.transform.trans(TITLE_POS, MARGIN);
+            let transform = c.transform.trans(LEGEND_POS_X, MARGIN);
             Text::new_color(star.color, 20).draw(&*title, 
                                                  &mut glyph, 
                                                  &c.draw_state, 
                                                  transform, 
                                                  gl);
 
+            // specify the initial legend position and drawing title
+            let legend_transform = c.transform.trans(LEGEND_POS_X, LEGEND_POS_Y);
+            Text::new_color(star.color, 12).draw("Legend:", 
+                                                 &mut glyph, 
+                                                 &c.draw_state, 
+                                                 legend_transform, 
+                                                 gl);
+
             // draw dimensions and labels
-            for dim in star.dimensions.iter() {
+            for (i, dim) in star.dimensions.iter().enumerate() {
                 Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], 
                                                &c.draw_state, 
                                                initial_transform, 
@@ -180,11 +198,13 @@ impl App {
 
                 // specify position of each label and draw it
                 let transform = initial_transform.trans(dim.label.pos[0], dim.label.pos[1]); 
-                Text::new_color(dim.color, 10).draw(&*dim.label.description, 
+                Text::new_color(dim.color, 12).draw(&*i.to_string(), 
                                                     &mut glyph, 
                                                     &c.draw_state, 
                                                     transform, 
-                                                    gl);                
+                                                    gl);
+
+                                
             }
             // draw contours
             for contour in star.contours.iter() {
@@ -192,6 +212,16 @@ impl App {
                                                 &c.draw_state, 
                                                 initial_transform, 
                                                 gl);
+            }
+
+            // Draw the legend list
+            for i in 0..legend.description.len() {
+                let legend_transform = legend_transform.trans(legend.pos[i][0], legend.pos[i][1]);
+                Text::new_color(star.dimensions[i].color, 12).draw(&*legend.description[i], 
+                                                                   &mut glyph, 
+                                                                   &c.draw_state, 
+                                                                   legend_transform, 
+                                                                   gl);
             }
 
             // draw ellipse
