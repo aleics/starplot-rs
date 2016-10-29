@@ -82,9 +82,9 @@ impl Starplot {
                    range_y = range[1]);
         }
 
-        let val = (val - range[0])/(range[1] - range[0]);
-
         let label_string: String = Starplot::concat_label(&val, &range, label, self.dimensions.len());
+
+        let val = (val - range[0])/(range[1] - range[0]);
         
         self.dimensions.push(Dim { val: val, 
                                    range: range, 
