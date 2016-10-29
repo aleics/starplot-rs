@@ -1,6 +1,9 @@
+use piston::window::WindowSettings;
+use piston::event_loop::*;
 use piston::input::*;
+use piston_window::{PistonWindow};
 
-use opengl_graphics::{GlGraphics};
+use opengl_graphics::{GlGraphics, OpenGL};
 use opengl_graphics::glyph_cache::{GlyphCache};
 
 use graphics::{clear, ellipse, rectangle};
@@ -10,6 +13,8 @@ use graphics::Transformed;
 use graphics::types;
 
 use image::RgbImage;
+
+use find_folder::Search;
 
 use std::path::{Path};
 use std::f64::consts::{PI};
@@ -30,6 +35,8 @@ pub enum Action {
 pub struct App {
     _img: RgbImage, // RGB image
     gl: GlGraphics, // OpenGL drawing backend
+    window: PistonWindow,
+
     star: Starplot,  // Starplot
     background: types::Color, // Application background
     title: String, // Title of the Visualization
@@ -44,10 +51,26 @@ pub struct App {
 impl App {
 
     /// Creates a new App instance
-    pub fn new(img: RgbImage, gl: GlGraphics) -> App {
+    pub fn new(window_x: u32, window_y: u32) -> App {
+        // Change this to OpenGL::V2_1 if not working.
+        let opengl = OpenGL::V3_2;
+
+        // Create a Piston window
+        let window: PistonWindow = WindowSettings::new(
+                "starplot",
+                [window_x, window_y]
+            )
+            .opengl(opengl)
+            .build()
+            .unwrap();        
+
+        let img: RgbImage = RgbImage::new(window_x, 
+                                          window_y);
+
         App {_img: img,
-             gl: gl, 
-             star: Starplot::new(), 
+             gl: GlGraphics::new(opengl), 
+             star: Starplot::new(),
+             window: window, 
              background: WHITE, 
              title: String::default(), 
              rotation: 0f64,
@@ -293,5 +316,45 @@ impl App {
             _ => {}
         }
         None
+    }
+
+    /// Starts the process for the visualization
+    pub fn start(&mut self) {
+        // Get the font for the text representation
+        let assets = Search::ParentsThenKids(3, 3)
+            .for_folder("assets").unwrap();
+
+        let ref font = assets.join("Inconsolata-Regular.ttf");
+
+        let mut events = self.window.events();
+        loop { // listen to events
+        let e = events.next(&mut self.window);
+        match e {
+
+            Some(Event::Render(r)) => {            
+                self.render(&r, &font.as_path()); // render the Application
+            }
+
+            Some(Event::Input(inp)) => {
+                let action = self.on_input(inp); // handle user input
+                match action {
+                    Some(Action::Quit) => { break; } // exit
+                    Some(Action::SaveAsPhoto) => { self.photo(); }
+                    Some(Action::InvertColor) => { self.invert(); }
+                    Some(Action::Rotation) => { self.rotation(); }
+                    _ => {}
+                } 
+            }
+
+            Some(Event::Update(_)) => {}
+
+            Some(Event::AfterRender(_)) => {}
+
+            Some(Event::Idle(_)) => {}
+
+            None => {}
+
+        }
+    }
     }
 }
