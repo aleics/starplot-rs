@@ -7,7 +7,7 @@ A tool written in [Rust](https://www.rust-lang.org) for visualization of Star Pl
 ## contribute
 Everyone is free to contribute. If interested:
 
-1. Fork the repository: https://github.com/aleics/starplot-rs/Fork
+1. Fork the repository: https://github.com/aleics/starplot-rs/fork
 2. Create your branch: `$ git checkout -b new-branch`
 3. Commit changes: `$ git commit -am 'new stuff!'`
 4. Push it to your branch: `$ git push origin new-branch`

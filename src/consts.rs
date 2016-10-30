@@ -25,10 +25,10 @@ pub const STARPLOT_SPHERE_SIZE: f64 = 20.0;
 pub const STARPLOT_SIZE: f64 = 200.0 + STARPLOT_SPHERE_SIZE;
 
 // Standard Starplot x-position
-pub const STARPLOT_POS_X: f64 = (WINDOW_WIDTH/2.0) - (STARPLOT_SPHERE_SIZE/2.0);
+pub const STARPLOT_POS_X: f64 = (WINDOW_WIDTH/2.0);
 
 // Standard Starplot y-position
-pub const STARPLOT_POS_Y: f64 = (WINDOW_HEIGHT/2.0) - (STARPLOT_SPHERE_SIZE/2.0);
+pub const STARPLOT_POS_Y: f64 = (WINDOW_HEIGHT/2.0);
 
 // Title position
 pub const TITLE_POS: f64 = MARGIN;

@@ -145,10 +145,15 @@ impl App {
 
             // initial point is (0,0) taking in count ellipse size
             dim.i_point = [ INITIAL[0], INITIAL[1] ];
-            dim.f_point = App::get_end_point( &[ self.star.size_ext, self.star.size_ext ],
-                                              &MARGIN, 
-                                              &angle, 
-                                              &dim.val);
+            
+            dim.f_point = [ INITIAL[0], INITIAL[1] ];
+            let end_point = App::get_end_point( &[ self.star.size_ext, self.star.size_ext ],
+                                                &MARGIN, 
+                                                &angle, 
+                                                &dim.val);
+            dim.f_point[0] += end_point[0];
+            dim.f_point[1] += end_point[1];
+            
 
             // get label point for the reference of the legend
             dim.label.pos = App::get_label_point( &[ self.star.size_ext, self.star.size_ext ], 
@@ -219,7 +224,7 @@ impl App {
             ellipse::Ellipse::new(background).border(ellipse::Border {color: GRAY_BORDER, radius: 0.5 })
                                              .draw(ext_square,
                                                    &c.draw_state,
-                                                   initial_transform.trans(-star.size_ext*0.775, -star.size_ext*0.775),
+                                                   initial_transform.trans(-star.size_ext*0.730, -star.size_ext*0.730),
                                                    gl);  
 
             // draw dimensions and labels
