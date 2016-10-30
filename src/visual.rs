@@ -2,7 +2,7 @@
 use graphics::types::Color;
 
 use super::consts::*;
-use super::colors::BLACK;
+use super::colors::BLACK_BACKGROUND;
 
 /// Starplot defines the position, size and the different dimensions of
 /// the visualization
@@ -29,7 +29,7 @@ impl Starplot {
                    size_ext: STARPLOT_SIZE, 
                    x: 0.0, 
                    y: 0.0, 
-                   color: BLACK,
+                   color: BLACK_BACKGROUND,
                    dimensions: Vec::new(),
                    contours: Vec::new() }
     }
@@ -40,7 +40,7 @@ impl Starplot {
                    size_ext: size, 
                    x: x, 
                    y: y, 
-                   color: BLACK,
+                   color: BLACK_BACKGROUND,
                    dimensions: Vec::new(),
                    contours: Vec::new() }
     }

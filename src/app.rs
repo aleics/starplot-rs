@@ -71,7 +71,7 @@ impl App {
              gl: GlGraphics::new(opengl), 
              star: Starplot::new(),
              window: window, 
-             background: WHITE, 
+             background: WHITE_BACKGROUND, 
              title: String::default(), 
              rotation: 0f64,
              legend: Legend::new() }
@@ -216,7 +216,7 @@ impl App {
                                                  gl);
             
             // specify exterior ellipse
-            ellipse::Ellipse::new(background).border(ellipse::Border {color: GRAY, radius: 0.5 })
+            ellipse::Ellipse::new(background).border(ellipse::Border {color: GRAY_BORDER, radius: 0.5 })
                                              .draw(ext_square,
                                                    &c.draw_state,
                                                    initial_transform.trans(-star.size_ext*0.775, -star.size_ext*0.775),
@@ -269,12 +269,12 @@ impl App {
 
     /// Inverts the background and Starplot color
     pub fn invert(&mut self) {
-        if self.background == WHITE && self.star.color == BLACK {
-            self.background = BLACK;
-            self.star.color = WHITE;
-        } else if self.background == BLACK && self.star.color == WHITE {
-            self.background = WHITE;
-            self.star.color = BLACK;
+        if self.background == WHITE_BACKGROUND && self.star.color == BLACK_BACKGROUND {
+            self.background = BLACK_BACKGROUND;
+            self.star.color = WHITE_BACKGROUND;
+        } else if self.background == BLACK_BACKGROUND && self.star.color == WHITE_BACKGROUND {
+            self.background = WHITE_BACKGROUND;
+            self.star.color = BLACK_BACKGROUND;
         }
     }
 
@@ -299,7 +299,7 @@ impl App {
                     Button::Keyboard(Key::S) => {
                         return Some(Action::SaveAsPhoto);
                     }
-                    Button::Keyboard(Key::N) => {
+                    Button::Keyboard(Key::I) => {
                         return Some(Action::InvertColor);
                     }                    
                     _ => {}

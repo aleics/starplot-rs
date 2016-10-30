@@ -38,7 +38,7 @@ Go to the `target/debug` or `target/release` folder and execute `main`:
     $ ./main
 ```
 
-You must see after something similiar as:
+After you should see something similiar as:
 
 <img src="img/starplot-1.png" alt="starplot-night" width="500"/>
 
@@ -46,7 +46,7 @@ Press after `Q` or `ESC` to exit.
 
 ## commands
 
-* `N`: switch night/day view.
+* `I`: switch night/day view (invert).
 * `Q`: exit the application.
 * `ESC`: exit the application. 
 * `R`: rotate Star Plot.

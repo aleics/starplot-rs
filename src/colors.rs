@@ -17,6 +17,10 @@ pub const SPING_GREEN: Color = [0.0, 1.0, 0.498, 1.0];
 pub const DARK_GREEN: Color = [0.0, 0.392, 0.0, 1.0];
 pub const BROWN: Color = [0.647, 0.165, 0.165, 1.0];
 
+pub const BLACK_BACKGROUND: Color = [0.172, 0.184, 0.2, 1.0];
+pub const WHITE_BACKGROUND: Color = WHITE;
+pub const GRAY_BORDER: Color= [0.6, 0.667, 0.71, 1.0];
+
 pub const BLUE: Color = [0.0, 0.0, 1.0, 1.0];
 pub const CYAN: Color = [0.0, 1.0, 1.0, 1.0];
 pub const VIOLET: Color = [0.780, 0.082, 0.522, 1.0];
