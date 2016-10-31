@@ -1,10 +1,11 @@
 use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;
-use piston_window::{PistonWindow};
 
 use opengl_graphics::{GlGraphics, OpenGL};
 use opengl_graphics::glyph_cache::{GlyphCache};
+
+use glutin_window::GlutinWindow;
 
 use graphics::{clear, ellipse, rectangle};
 use graphics::line::Line;
@@ -35,7 +36,7 @@ pub enum Action {
 pub struct App {
     _img: RgbImage, // RGB image
     gl: GlGraphics, // OpenGL drawing backend
-    window: PistonWindow,
+    window: GlutinWindow,
 
     star: Starplot,  // Starplot
     background: types::Color, // Application background
@@ -56,7 +57,7 @@ impl App {
         let opengl = OpenGL::V3_2;
 
         // Create a Piston window
-        let window: PistonWindow = WindowSettings::new(
+        let window: GlutinWindow = WindowSettings::new(
                 "starplot",
                 [window_x, window_y]
             )
