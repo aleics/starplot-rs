@@ -37,7 +37,7 @@ pub enum Action {
 pub struct GObjects {
     pub star: Starplot,  // Starplot
     background: types::Color, // Application background
-    title: String, // Title of the Visualization    
+    pub title: String, // Title of the Visualization    
     legend: Legend // Legend list
 }
 

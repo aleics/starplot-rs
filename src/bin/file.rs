@@ -16,9 +16,6 @@ fn main() {
     let mut app: App = App::new(700, 420);
     app.read_conf(filepath);
 
-    // Specify title
-    app.title("Here comes the title!".to_string());
-
     // Preprocessing
     app.preproc();
 

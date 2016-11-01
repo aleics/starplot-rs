@@ -19,6 +19,7 @@ struct DimConf {
 /// StarConf defines the configuration structure of an Starplot
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct StarConf {
+    title: String,
     size_core: f64,
     size_ext: f64,
     pos_x: f64,
@@ -65,6 +66,7 @@ impl StarConf {
                                                starconf.pos_x, 
                                                starconf.pos_y);
 
+                gobjects.title = starconf.title;
                 // add the dimensions' configuration to the Starplot
                 for dim in starconf.dimensions {
                     gobjects.star.add_dim(dim.val, 
