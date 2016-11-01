@@ -21,6 +21,7 @@ use std::path::{Path};
 use std::f64::consts::{PI};
 
 use super::visual::{Starplot, Dim, Legend};
+use super::conf::StarConf;
 use super::consts::*;
 use super::colors::*;
 
@@ -32,17 +33,34 @@ pub enum Action {
     Quit
 }
 
+/// GObjects contains the graphic objects used on the application
+pub struct GObjects {
+    pub star: Starplot,  // Starplot
+    background: types::Color, // Application background
+    title: String, // Title of the Visualization    
+    legend: Legend // Legend list
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Inherent methods
+////////////////////////////////////////////////////////////////////////////////
+
+impl GObjects {
+    /// Creates a new GObjects instance with default values
+    pub fn new() -> GObjects {
+        GObjects { star: Starplot::new(),
+                   background: WHITE_BACKGROUND, 
+                   title: String::default(),                 
+                   legend: Legend::new() }
+    }
+}
+
 /// App defines the global application variables for the visualization an Starplot
 pub struct App {
     _img: RgbImage, // RGB image
     gl: GlGraphics, // OpenGL drawing backend
     window: GlutinWindow,
-
-    star: Starplot,  // Starplot
-    background: types::Color, // Application background
-    title: String, // Title of the Visualization
-    rotation: f64,
-    legend: Legend
+    objects: GObjects
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,23 +87,24 @@ impl App {
                                           window_y);
 
         App {_img: img,
-             gl: GlGraphics::new(opengl), 
-             star: Starplot::new(),
+             gl: GlGraphics::new(opengl),              
              window: window, 
-             background: WHITE_BACKGROUND, 
-             title: String::default(), 
-             rotation: 0f64,
-             legend: Legend::new() }
+             objects: GObjects::new()
+            }
     }
 
     /// Defines the Starplot configuration for the visualization
     pub fn def_star(&mut self, star: Starplot) {
-        self.star = star;
+        self.objects.star = star;
     }
 
     // Defines title of the visualization
     pub fn title(&mut self, title: String) {
-        self.title = title;
+        self.objects.title = title;
+    }
+
+    pub fn read_conf(&mut self, filepath: String) {
+        self.objects = StarConf::read_from_file( Path::new(&*filepath) ).unwrap();
     }
 
     /// Get the contours of the Starplot dimensions
@@ -137,18 +156,18 @@ impl App {
     /// Do the preprocessing part (calculate angles, contours)
     pub fn preproc(&mut self) {
         // get the degree divison for the number of dimensions
-        let degree_div: f64 = 360.0/(self.star.dimensions.len() as f64);
+        let degree_div: f64 = 360.0/(self.objects.star.dimensions.len() as f64);
 
         // get for each dimension it's final point (initial point is the center of the ellipse)
         // and the associated label position
-        for (i, dim) in self.star.dimensions.iter_mut().enumerate() {            
+        for (i, dim) in self.objects.star.dimensions.iter_mut().enumerate() {            
             let angle: f64 = App::get_angle(&degree_div, i as f64);  
 
             // initial point is (0,0) taking in count ellipse size
             dim.i_point = [ INITIAL[0], INITIAL[1] ];
             
             dim.f_point = [ INITIAL[0], INITIAL[1] ];
-            let end_point = App::get_end_point( &[ self.star.size_ext, self.star.size_ext ],
+            let end_point = App::get_end_point( &[ self.objects.star.size_ext, self.objects.star.size_ext ],
                                                 &MARGIN, 
                                                 &angle, 
                                                 &dim.val);
@@ -157,45 +176,45 @@ impl App {
             
 
             // get label point for the reference of the legend
-            dim.label.pos = App::get_label_point( &[ self.star.size_ext, self.star.size_ext ], 
+            dim.label.pos = App::get_label_point( &[ self.objects.star.size_ext, self.objects.star.size_ext ], 
                                                   &MARGIN, 
                                                   &MARGIN_LABEL, 
                                                   &angle, 
                                                   &dim.val);
 
             // clone label description to the legend
-            self.legend.add_description(dim.label.description.clone());
+            self.objects.legend.add_description(dim.label.description.clone());
         }
 
         // get the contour connections between dimensions
-        self.star.contours = App::get_contour(&self.star.dimensions);
+        self.objects.star.contours = App::get_contour(&self.objects.star.dimensions);
     }
 
     /// Render the Starplot
     pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {  
         // define the position and size of the core ellipse using a square
-        let core_square = rectangle::square(0.0, 0.0, self.star.size_sphere);
+        let core_square = rectangle::square(0.0, 0.0, self.objects.star.size_sphere);
 
         // define the position and size of the exterior ellipse using a square
-        let ext_square = rectangle::square(0.0, 0.0, self.star.size_ext*1.55);
+        let ext_square = rectangle::square(0.0, 0.0, self.objects.star.size_ext*1.55);
 
         // clone Starplot for avoiding borrow error
-        let star: Starplot = self.star.clone();
+        let star: Starplot = self.objects.star.clone();
 
         // get the CharacterCache that describes the used font properties
         let mut glyph = GlyphCache::new(font_path).unwrap();
         
         // clone background Color of App
-        let background: types::Color = self.background.clone();
+        let background: types::Color = self.objects.background.clone();
 
         // clone title of App
-        let title: String = self.title.clone();
+        let title: String = self.objects.title.clone();
 
         // clone rotation of App
-        let rot: f64 = self.rotation.clone();
+        let rot: f64 = self.objects.star.rotation.clone();
 
         // clone legend of App
-        let legend: Legend = self.legend.clone();
+        let legend: Legend = self.objects.legend.clone();
 
         self.gl.draw(args.viewport(), |c, gl| {
             let initial_transform = c.transform.trans(star.x, star.y) // make the origin at the center of the window
@@ -214,13 +233,24 @@ impl App {
                                                  gl);
 
             // specify the initial legend position and drawing title
-            let legend_transform = c.transform.trans(LEGEND_POS_X, LEGEND_POS_Y);
-            Text::new_color(star.color, 12).draw("Legend:", 
-                                                 &mut glyph, 
-                                                 &c.draw_state, 
-                                                 legend_transform, 
-                                                 gl);
-            
+            if legend.description.len() > 0 {
+                let legend_transform = c.transform.trans(LEGEND_POS_X, LEGEND_POS_Y);
+                Text::new_color(star.color, 12).draw("Legend:", 
+                                                    &mut glyph, 
+                                                    &c.draw_state, 
+                                                    legend_transform, 
+                                                    gl);
+                
+                // Draw the legend list
+                for i in 0..legend.description.len() {
+                    let legend_transform = legend_transform.trans(legend.pos[i][0], legend.pos[i][1]);
+                    Text::new_color(star.dimensions[i].color, 12).draw(&*legend.description[i], 
+                                                                    &mut glyph, 
+                                                                    &c.draw_state, 
+                                                                    legend_transform, 
+                                                                    gl);
+                }
+            }
             // specify exterior ellipse
             ellipse::Ellipse::new(background).border(ellipse::Border {color: GRAY_BORDER, radius: 0.5 })
                                              .draw(ext_square,
@@ -251,17 +281,7 @@ impl App {
                                                 &c.draw_state, 
                                                 initial_transform, 
                                                 gl);
-            }
-
-            // Draw the legend list
-            for i in 0..legend.description.len() {
-                let legend_transform = legend_transform.trans(legend.pos[i][0], legend.pos[i][1]);
-                Text::new_color(star.dimensions[i].color, 12).draw(&*legend.description[i], 
-                                                                   &mut glyph, 
-                                                                   &c.draw_state, 
-                                                                   legend_transform, 
-                                                                   gl);
-            }
+            }            
 
             // draw ellipse
             ellipse(star.color, core_square, initial_transform, gl);    
@@ -275,18 +295,18 @@ impl App {
 
     /// Inverts the background and Starplot color
     pub fn invert(&mut self) {
-        if self.background == WHITE_BACKGROUND && self.star.color == BLACK_BACKGROUND {
-            self.background = BLACK_BACKGROUND;
-            self.star.color = WHITE_BACKGROUND;
-        } else if self.background == BLACK_BACKGROUND && self.star.color == WHITE_BACKGROUND {
-            self.background = WHITE_BACKGROUND;
-            self.star.color = BLACK_BACKGROUND;
+        if self.objects.background == WHITE_BACKGROUND && self.objects.star.color == BLACK_BACKGROUND {
+            self.objects.background = BLACK_BACKGROUND;
+            self.objects.star.color = WHITE_BACKGROUND;
+        } else if self.objects.background == BLACK_BACKGROUND && self.objects.star.color == WHITE_BACKGROUND {
+            self.objects.background = WHITE_BACKGROUND;
+            self.objects.star.color = BLACK_BACKGROUND;
         }
     }
 
     /// Rotates the Starplot 
     pub fn rotation(&mut self) {
-        self.rotation += ROTATION_STEP;
+        self.objects.star.rotation += ROTATION_STEP;
     }
 
     /// Handles the user input

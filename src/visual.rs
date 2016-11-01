@@ -14,7 +14,8 @@ pub struct Starplot {
     pub y: f64,
     pub color: Color,
     pub dimensions: Vec<Dim>,
-    pub contours: Vec<[f64; 4]>
+    pub contours: Vec<[f64; 4]>,
+    pub rotation: f64
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,13 +26,14 @@ impl Starplot {
 
     /// Creates a new Starplot variable
     pub fn new() -> Starplot {
-        Starplot { size_sphere: STARPLOT_SPHERE_SIZE,
-                   size_ext: STARPLOT_SIZE, 
-                   x: 0.0, 
-                   y: 0.0, 
+        Starplot { size_sphere: 0f64,
+                   size_ext: 0f64, 
+                   x: 0f64, 
+                   y: 0f64, 
                    color: BLACK_BACKGROUND,
                    dimensions: Vec::new(),
-                   contours: Vec::new() }
+                   contours: Vec::new(),
+                   rotation: 0f64 }
     }
 
     /// Initializes a new Starplot with a defined position and size
@@ -42,11 +44,12 @@ impl Starplot {
                    y: y, 
                    color: BLACK_BACKGROUND,
                    dimensions: Vec::new(),
-                   contours: Vec::new() }
+                   contours: Vec::new(),
+                   rotation: 0f64, }
     }
 
     /// Gets the full label description for the legend reference
-    fn concat_label(val: &f64, range: &[f64; 2], label: &'static str, index: usize) -> String {
+    fn concat_label(val: &f64, range: &[f64; 2], label: &String, index: usize) -> String {
         let range_str_a: &str = &*range[0].to_string();
         let range_str_b: &str = &*range[1].to_string();
         let val_str: &str = &*val.to_string();
@@ -73,7 +76,7 @@ impl Starplot {
     }
 
     /// Adds a dimension to the Starplot with the defined configuration variables
-    pub fn add_dim(&mut self, val: f64, range: [f64; 2], label: &'static str, color: [f32; 4]) {
+    pub fn add_dim(&mut self, val: f64, range: [f64; 2], label: String, color: [f32; 4]) {
         // if value is out of range: panic message
         if val < range[0] || val > range[1] { 
             panic!("value {val} out of range [{range_x}, {range_y}]", 
@@ -82,7 +85,7 @@ impl Starplot {
                    range_y = range[1]);
         }
 
-        let label_string: String = Starplot::concat_label(&val, &range, label, self.dimensions.len());
+        let label_string: String = Starplot::concat_label(&val, &range, &label, self.dimensions.len());
 
         let val = (val - range[0])/(range[1] - range[0]);
         
