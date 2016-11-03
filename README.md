@@ -23,11 +23,17 @@ Clone the repository as follows:
 Or download the repository as a zip.
 
 ## build
-Enter on the repository directory and build it using `cargo`:
+Enter on the repository directory and build it using `cargo` with the nightly version of Rust:
 
 ```
     $ cd starplot-rs
     $ cargo build --verbose
+```
+
+Or just use [rustup](https://github.com/rust-lang-nursery/rustup.rs):
+
+```
+    $ rustup run nightly cargo build
 ```
 
 ## run
@@ -43,6 +49,16 @@ After you should see something similiar as:
 <img src="img/starplot-1.png" alt="starplot-night" width="500"/>
 
 Press after `Q` or `ESC` to exit.
+
+## reading configuration file
+It's also possible to read a JSON configuration (look in `conf/example.json`) using the 
+`read_conf` method from the `App` struct. Afterwards, the absolut path of the configuration
+file can be passed as an argument when calling the compiled file:
+
+```
+    $ ./file /home/user/config.json
+```
+
 
 ## commands
 
