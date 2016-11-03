@@ -36,6 +36,9 @@ Or just use [rustup](https://github.com/rust-lang-nursery/rustup.rs):
     $ rustup run nightly cargo build
 ```
 
+ * Note: the project has to be in the `nightly` version compiled, since the [serve](https://serde.rs/) package for the deserialization
+   of the configuration file works just on this version of Rust.
+
 ## run
 Go to the `target/debug` or `target/release` folder and execute `main`:
 
@@ -50,7 +53,7 @@ After you should see something similiar as:
 
 Press after `Q` or `ESC` to exit.
 
-## reading configuration file
+## configuration
 It's also possible to read a JSON configuration (look in `conf/example.json`) using the 
 `read_conf` method from the `App` struct. Afterwards, the absolut path of the configuration
 file can be passed as an argument when calling the compiled file:
