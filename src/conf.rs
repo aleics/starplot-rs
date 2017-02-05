@@ -77,6 +77,5 @@ impl StarConf {
                 return Some(gobjects);
             },
         }
-        None
     }
 }
