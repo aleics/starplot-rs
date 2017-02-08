@@ -36,7 +36,7 @@ pub const TITLE_POS: f64 = MARGIN;
 // Rotation step defined for the rotation
 pub const ROTATION_STEP: f64 = 0.01;
 
-// Legend x-position 
+// Legend x-position
 pub const LEGEND_POS_X: f64 = 20.0;
 
 // Legend y-position

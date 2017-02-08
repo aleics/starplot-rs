@@ -37,7 +37,7 @@ pub enum Action {
 pub struct GObjects {
     pub star: Starplot,  // Starplot
     background: types::Color, // Application background
-    pub title: String, // Title of the Visualization    
+    pub title: String, // Title of the Visualization
     legend: Legend // Legend list
 }
 
@@ -49,8 +49,8 @@ impl GObjects {
     /// Creates a new GObjects instance with default values
     pub fn new() -> GObjects {
         GObjects { star: Starplot::new(),
-                   background: WHITE_BACKGROUND, 
-                   title: String::default(),                 
+                   background: WHITE_BACKGROUND,
+                   title: String::default(),
                    legend: Legend::new() }
     }
 }
@@ -81,14 +81,14 @@ impl App {
             )
             .opengl(opengl)
             .build()
-            .unwrap();        
+            .unwrap();
 
-        let img: RgbImage = RgbImage::new(window_x, 
+        let img: RgbImage = RgbImage::new(window_x,
                                           window_y);
 
         App {_img: img,
-             gl: GlGraphics::new(opengl),              
-             window: window, 
+             gl: GlGraphics::new(opengl),
+             window: window,
              objects: GObjects::new()
             }
     }
@@ -113,14 +113,14 @@ impl App {
 
         for i in 0..dim_vec.len() {
             // if last dimension: connect with the first
-            if (i + 1) == dim_vec.len() { 
-                out.push([ dim_vec[i].f_point[0], dim_vec[i].f_point[1], 
+            if (i + 1) == dim_vec.len() {
+                out.push([ dim_vec[i].f_point[0], dim_vec[i].f_point[1],
                            dim_vec[0].f_point[0], dim_vec[0].f_point[1] ]);
 
                 break;
             }
             // connect each dimension
-            out.push([ dim_vec[i].f_point[0], dim_vec[i].f_point[1], 
+            out.push([ dim_vec[i].f_point[0], dim_vec[i].f_point[1],
                        dim_vec[i+1].f_point[0], dim_vec[i+1].f_point[1] ]);
         }
 
@@ -129,21 +129,20 @@ impl App {
 
     /// Get end point of dimension depending on it's value and angle
     fn get_end_point(size: &[f64; 2], margin: &f64, angle: &f64, val: &f64) -> [f64; 2] {
-        [ (size[0] - margin)*val*angle.cos(), 
+        [ (size[0] - margin)*val*angle.cos(),
           -(size[1] - margin)*val*angle.sin() ]
     }
 
     /// Get label position depending on the value and angle of the associated dimension
-    fn get_label_point(size: &[f64; 2], 
-                       margin: &f64, 
-                       margin_label: &f64, 
-                       angle: &f64, 
-                       //label_size: usize, 
+    fn get_label_point(size: &[f64; 2],
+                       margin: &f64,
+                       margin_label: &f64,
+                       angle: &f64,
                        val: &f64) -> [f64; 2] {
 
         let extra: f64 = 5.0;
 
-        [ (size[0] - margin + margin_label)*val*angle.cos() + extra*angle.cos(), 
+        [ (size[0] - margin + margin_label)*val*angle.cos() + extra*angle.cos(),
           -(size[1] - margin + margin_label)*val*angle.sin() ]
     }
 
@@ -160,26 +159,25 @@ impl App {
 
         // get for each dimension it's final point (initial point is the center of the ellipse)
         // and the associated label position
-        for (i, dim) in self.objects.star.dimensions.iter_mut().enumerate() {            
-            let angle: f64 = App::get_angle(&degree_div, i as f64);  
+        for (i, dim) in self.objects.star.dimensions.iter_mut().enumerate() {
+            let angle: f64 = App::get_angle(&degree_div, i as f64);
 
             // initial point is (0,0) taking in count ellipse size
             dim.i_point = [ INITIAL[0], INITIAL[1] ];
-            
+
             dim.f_point = [ INITIAL[0], INITIAL[1] ];
             let end_point = App::get_end_point( &[ self.objects.star.size_ext, self.objects.star.size_ext ],
-                                                &MARGIN, 
-                                                &angle, 
+                                                &MARGIN,
+                                                &angle,
                                                 &dim.val);
             dim.f_point[0] += end_point[0];
             dim.f_point[1] += end_point[1];
-            
 
             // get label point for the reference of the legend
-            dim.label.pos = App::get_label_point( &[ self.objects.star.size_ext, self.objects.star.size_ext ], 
-                                                  &MARGIN, 
-                                                  &MARGIN_LABEL, 
-                                                  &angle, 
+            dim.label.pos = App::get_label_point( &[ self.objects.star.size_ext, self.objects.star.size_ext ],
+                                                  &MARGIN,
+                                                  &MARGIN_LABEL,
+                                                  &angle,
                                                   &dim.val);
 
             // clone label description to the legend
@@ -191,7 +189,7 @@ impl App {
     }
 
     /// Render the Starplot
-    pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {  
+    pub fn render(&mut self, args: &RenderArgs, font_path: &Path) {
         // define the position and size of the core ellipse using a square
         let core_square = rectangle::square(0.0, 0.0, self.objects.star.size_sphere);
 
@@ -203,7 +201,7 @@ impl App {
 
         // get the CharacterCache that describes the used font properties
         let mut glyph = GlyphCache::new(font_path).unwrap();
-        
+
         // clone background Color of App
         let background: types::Color = self.objects.background.clone();
 
@@ -222,32 +220,32 @@ impl App {
                                                .trans(-0.5*STARPLOT_SPHERE_SIZE, -0.5*STARPLOT_SPHERE_SIZE); // take count the size of the object
 
             // clear the window
-            clear(background, gl);                 
-            
+            clear(background, gl);
+
             // specify position of title and draw it
             let transform = c.transform.trans(LEGEND_POS_X, MARGIN);
-            Text::new_color(star.color, 20).draw(&*title, 
-                                                 &mut glyph, 
-                                                 &c.draw_state, 
-                                                 transform, 
+            Text::new_color(star.color, 20).draw(&*title,
+                                                 &mut glyph,
+                                                 &c.draw_state,
+                                                 transform,
                                                  gl);
 
             // specify the initial legend position and drawing title
             if legend.description.len() > 0 {
                 let legend_transform = c.transform.trans(LEGEND_POS_X, LEGEND_POS_Y);
-                Text::new_color(star.color, 12).draw("Legend:", 
-                                                    &mut glyph, 
-                                                    &c.draw_state, 
-                                                    legend_transform, 
+                Text::new_color(star.color, 12).draw("Legend:",
+                                                    &mut glyph,
+                                                    &c.draw_state,
+                                                    legend_transform,
                                                     gl);
-                
+
                 // Draw the legend list
                 for i in 0..legend.description.len() {
                     let legend_transform = legend_transform.trans(legend.pos[i][0], legend.pos[i][1]);
-                    Text::new_color(star.dimensions[i].color, 12).draw(&*legend.description[i], 
-                                                                    &mut glyph, 
-                                                                    &c.draw_state, 
-                                                                    legend_transform, 
+                    Text::new_color(star.dimensions[i].color, 12).draw(&*legend.description[i],
+                                                                    &mut glyph,
+                                                                    &c.draw_state,
+                                                                    legend_transform,
                                                                     gl);
                 }
             }
@@ -256,35 +254,33 @@ impl App {
                                              .draw(ext_square,
                                                    &c.draw_state,
                                                    initial_transform.trans(-star.size_ext*0.730, -star.size_ext*0.730),
-                                                   gl);  
+                                                   gl);
 
             // draw dimensions and labels
             for (i, dim) in star.dimensions.iter().enumerate() {
                 Line::new(dim.color, 1.0).draw([dim.i_point[0], dim.i_point[1], dim.f_point[0], dim.f_point[1]], 
-                                               &c.draw_state, 
-                                               initial_transform, 
+                                               &c.draw_state,
+                                               initial_transform,
                                                gl);
 
                 // specify position of each label and draw it
-                let transform = initial_transform.trans(dim.label.pos[0], dim.label.pos[1]); 
-                Text::new_color(dim.color, 12).draw(&*i.to_string(), 
-                                                    &mut glyph, 
-                                                    &c.draw_state, 
-                                                    transform, 
+                let transform = initial_transform.trans(dim.label.pos[0], dim.label.pos[1]);
+                Text::new_color(dim.color, 12).draw(&*i.to_string(),
+                                                    &mut glyph,
+                                                    &c.draw_state,
+                                                    transform,
                                                     gl);
-
-                                
             }
             // draw contours
             for contour in star.contours.iter() {
-                Line::new(star.color, 1.0).draw(*contour, 
-                                                &c.draw_state, 
-                                                initial_transform, 
+                Line::new(star.color, 1.0).draw(*contour,
+                                                &c.draw_state,
+                                                initial_transform,
                                                 gl);
-            }            
+            }
 
             // draw ellipse
-            ellipse(star.color, core_square, initial_transform, gl);    
+            ellipse(star.color, core_square, initial_transform, gl);
         });
     }
 
@@ -304,7 +300,7 @@ impl App {
         }
     }
 
-    /// Rotates the Starplot 
+    /// Rotates the Starplot
     pub fn rotation(&mut self) {
         self.objects.star.rotation += ROTATION_STEP;
     }
@@ -327,7 +323,7 @@ impl App {
                     }
                     Button::Keyboard(Key::I) => {
                         return Some(Action::InvertColor);
-                    }                    
+                    }
                     _ => {}
                 }
             }
@@ -357,7 +353,7 @@ impl App {
         let e = events.next(&mut self.window);
         match e {
 
-            Some(Event::Render(r)) => {            
+            Some(Event::Render(r)) => {
                 self.render(&r, &font.as_path()); // render the Application
             }
 
@@ -369,7 +365,7 @@ impl App {
                     Some(Action::InvertColor) => { self.invert(); }
                     Some(Action::Rotation) => { self.rotation(); }
                     _ => {}
-                } 
+                }
             }
 
             Some(Event::Update(_)) => {}

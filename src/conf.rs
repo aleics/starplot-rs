@@ -13,7 +13,7 @@ struct DimConf {
     val: f64,
     range: [f64; 2],
     label: String,
-    color: [f32; 4]        
+    color: [f32; 4]
 }
 
 /// StarConf defines the configuration structure of an Starplot
@@ -36,7 +36,7 @@ impl StarConf {
     /// Reads the configuration from a JSON file
     pub fn read_from_file(path: &Path) -> Option<GObjects> {
         // open the given file
-        let mut file = match File::open(path) { 
+        let mut file = match File::open(path) {
             Err(e) => panic!("couldn't open {}: {}", path.to_str().unwrap(), e),
             Ok(file) => file,
         };
@@ -52,7 +52,7 @@ impl StarConf {
                     Err(e) => panic!("format exception from '{}'. error: {}.\n {}", path.to_str().unwrap(), e, content),
                     Ok(objects) => objects,
                 };
-                
+
                 // if the given dimensions are 0, cancel visualization
                 if starconf.dimensions.len() == 0 {
                     println!("Dimension configuration couldn't be process it, or it's not specified!");
@@ -61,17 +61,17 @@ impl StarConf {
 
                 // create a new instance of GObjects and initialize the Starplot variable
                 let mut gobjects: GObjects = GObjects::new();
-                gobjects.star = Starplot::init(starconf.size_core, 
-                                               starconf.size_ext, 
-                                               starconf.pos_x, 
+                gobjects.star = Starplot::init(starconf.size_core,
+                                               starconf.size_ext,
+                                               starconf.pos_x,
                                                starconf.pos_y);
 
                 gobjects.title = starconf.title;
                 // add the dimensions' configuration to the Starplot
                 for dim in starconf.dimensions {
-                    gobjects.star.add_dim(dim.val, 
-                                          dim.range, 
-                                          dim.label, 
+                    gobjects.star.add_dim(dim.val,
+                                          dim.range,
+                                          dim.label,
                                           dim.color);
                 }
                 return Some(gobjects);

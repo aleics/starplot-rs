@@ -11,8 +11,8 @@ fn main() {
 
     // Generate an Starplot
     let mut starplot = Starplot::init(consts::STARPLOT_SPHERE_SIZE,
-                                      consts::STARPLOT_SIZE, 
-                                      490.0, 
+                                      consts::STARPLOT_SIZE,
+                                      490.0,
                                       240.0);
 
     // Add dimensions to the Starplot
