@@ -33,11 +33,8 @@ Enter on the repository directory and build it using `cargo` with the nightly ve
 Or just use [rustup](https://github.com/rust-lang-nursery/rustup.rs):
 
 ```
-    $ rustup run nightly cargo build
+    $ rustup run stable cargo build
 ```
-
- * Note: the project has to be in the `nightly` version compiled, since the [serve](https://serde.rs/) package for the deserialization
-   of the configuration file works just on this version of Rust.
 
 ## run
 Go to the `target/debug` or `target/release` folder and execute `main`:
